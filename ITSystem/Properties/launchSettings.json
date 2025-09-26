@@ -2,9 +2,6 @@
   "profiles": {
     "ITSystem": {
       "commandName": "Project"
-    },
-    "Container (Dockerfile)": {
-      "commandName": "Docker"
     }
   }
 }

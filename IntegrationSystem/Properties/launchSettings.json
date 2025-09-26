@@ -2,9 +2,6 @@
   "profiles": {
     "IntegrationSystem": {
       "commandName": "Project"
-    },
-    "Container (Dockerfile)": {
-      "commandName": "Docker"
     }
   }
 }
