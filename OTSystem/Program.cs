@@ -1,11 +1,14 @@
-﻿namespace OTSystem
+﻿using System;
+using OTSystem.OTSystem;
+
+namespace OTSystem
 {
     internal class Program
     {
         static void Main(string[] args)
         {
-            IndustrialControlSystem ics = new IndustrialControlSystem();
-            ics.Run();
+            IndustrialControlSystem industrialControlSystem = new IndustrialControlSystem();
+            industrialControlSystem.Run();
         }
     }
 }
