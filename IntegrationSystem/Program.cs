@@ -27,7 +27,7 @@ string otHost = config["Ot:Host"] ?? "127.0.0.1";
 int otPort = int.TryParse(config["Ot:Port"], out var p) ? p : 502;
 int pollSeconds = int.TryParse(config["PollingSeconds"], out var s) ? s : 1;
 
-Console.WriteLine($"BridgeService started — OT={otHost}:{otPort}");
+Console.WriteLine($"Integration BridgeService started — OT={otHost}:{otPort}");
 
 while (true)
 {
@@ -91,7 +91,7 @@ while (true)
                     });
                     db.SaveChanges();
 
-                    Console.WriteLine($"Order #{next.Id}: produced={produced}");
+                    Console.WriteLine($"Order - Ordernumber: {next.Id} - Products produced - {produced}");
                 }
 
                 bool done = client.ReadDiscreteInputs(0, 1)[0];
@@ -99,7 +99,7 @@ while (true)
                 {
                     next.Status = OrderStatus.Completed;
                     db.SaveChanges();
-                    Console.WriteLine($"Order #{next.Id} completed.");
+                    Console.WriteLine($"Order - Ordernumber: {next.Id} - Order Completed.");
                     break;
                 }
 
@@ -108,7 +108,7 @@ while (true)
                     next.Status = OrderStatus.Failed;
                     next.LastError = "Timeout — no progress from OT";
                     db.SaveChanges();
-                    Console.WriteLine($"Order #{next.Id} failed: timeout");
+                    Console.WriteLine($"Order - Ordernumber: {next.Id} failed: timeout");
                     break;
                 }
 
@@ -137,7 +137,7 @@ while (true)
         }
         catch { }
 
-        Console.WriteLine($"Integration loop error: {ex.Message}");
+        Console.WriteLine($"Integration error: {ex.Message}");
         Thread.Sleep(1000);
     }
 }

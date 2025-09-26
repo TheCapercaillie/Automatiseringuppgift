@@ -13,10 +13,10 @@ namespace OTSystem
     {
         internal class IndustrialControlSystem
         {
-            private static volatile bool isBusy = false;
+            private static volatile bool isOccupied = false;
             private static readonly object _lock = new();
             private const short AuthKey = unchecked((short)0xBEEF);
-            private static short lastNonce = 0;
+            private static short previousNonce = 0;
 
             public void Run()
             {
@@ -81,12 +81,12 @@ namespace OTSystem
             {
                 lock (_lock)
                 {
-                    if (isBusy)
+                    if (isOccupied)
                     {
                         Console.WriteLine("  Machine busy – start ignored.");
                         return;
                     }
-                    isBusy = true;
+                    isOccupied = true;
                 }
 
                 short key = (short)(modbusServer.holdingRegisters[10] != 0
@@ -96,15 +96,15 @@ namespace OTSystem
                     ? modbusServer.holdingRegisters[11]
                     : modbusServer.holdingRegisters[12]);
 
-                if (key != AuthKey || nonce == lastNonce)
+                if (key != AuthKey || nonce == previousNonce)
                 {
-                    Console.WriteLine("!! Unauthorized or replay start ignored");
+                    Console.WriteLine("Unauthorized user!");
                     modbusServer.coils[0] = false;
                     modbusServer.coils[1] = false;
-                    lock (_lock) isBusy = false;
+                    lock (_lock) isOccupied = false;
                     return;
                 }
-                lastNonce = nonce;
+                previousNonce = nonce;
 
                 int orderId = modbusServer.holdingRegisters[0] != 0
                     ? modbusServer.holdingRegisters[0]
@@ -116,7 +116,7 @@ namespace OTSystem
 
                 if (qty < 0) qty = 0;
 
-                Console.WriteLine($"--> START order {orderId} (qty {qty})");
+                Console.WriteLine($"   Starting production for order {orderId} (Quantity {qty})");
 
                 ClearRegisters(modbusServer);
 
@@ -137,13 +137,13 @@ namespace OTSystem
 
                     modbusServer.discreteInputs[0] = true;
                     modbusServer.discreteInputs[1] = true;
-                    Console.WriteLine($"<-- DONE order {orderId} (produced {qty})");
+                    Console.WriteLine($"   Finished order {orderId} (Produced {qty} articles)");
                 }
                 finally
                 {
                     modbusServer.coils[0] = false;
                     modbusServer.coils[1] = false;
-                    lock (_lock) isBusy = false;
+                    lock (_lock) isOccupied = false;
                 }
             }
 
